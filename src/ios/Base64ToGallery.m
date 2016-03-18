@@ -19,14 +19,27 @@
 //    return self;
 //}
 
+
+- (void) saveImageFromUrl:(CDVInvokedUrlCommand*)command
+{
+    self.callbackId = command.callbackId;
+    NSString *url = [command.arguments objectAtIndex:0];
+    
+    UIImage *pic = [[UIImage alloc] initWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:url]]];
+    
+    UIImageWriteToSavedPhotosAlbum(pic, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+    
+}
+
 - (void)saveImageDataToLibrary:(CDVInvokedUrlCommand*)command
 {
     self.callbackId = command.callbackId;
-	NSData* imageData = [NSData dataFromBase64String:[command.arguments objectAtIndex:0]];
+//	NSData* imageData = [NSData dataFromBase64String:[command.arguments objectAtIndex:0]];
+    NSData *imageData = [[NSData alloc]initWithBase64EncodedString:[command.arguments objectAtIndex:0] options:NSDataBase64DecodingIgnoreUnknownCharacters];
 
-	UIImage* image = [[[UIImage alloc] initWithData:imageData] autorelease];
+    UIImage* image = [[[UIImage alloc] initWithData:imageData] autorelease];
 
-	UIImageWriteToSavedPhotosAlbum(image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
+    UIImageWriteToSavedPhotosAlbum(image, self, @selector(image:didFinishSavingWithError:contextInfo:), nil);
 }
 
 - (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo
@@ -38,15 +51,17 @@
         NSLog(@"ERROR: %@", error);
 
         result = [CDVPluginResult resultWithStatus: CDVCommandStatus_ERROR messageAsString:error.description];
+        [self.commandDelegate sendPluginResult:result callbackId:self.callbackId];
 
-		[self.webView stringByEvaluatingJavaScriptFromString:[result toErrorCallbackString: self.callbackId]];
+//		[self.webView stringByEvaluatingJavaScriptFromString:[result toErrorCallbackString: self.callbackId]];
 
     // No errors
     } else {
 
 		result = [CDVPluginResult resultWithStatus: CDVCommandStatus_OK];
+        [self.commandDelegate sendPluginResult:result callbackId:self.callbackId];
 
-        [self.webView stringByEvaluatingJavaScriptFromString:[result toSuccessCallbackString: self.callbackId]];
+//        [self.webView stringByEvaluatingJavaScriptFromString:[result toSuccessCallbackString: self.callbackId]];
     }
 }
 

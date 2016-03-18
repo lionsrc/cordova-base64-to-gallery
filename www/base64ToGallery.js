@@ -12,7 +12,8 @@
 // Consts
 // ------
 var SERVICE = 'Base64ToGallery';
-var ACTION  = 'saveImageDataToLibrary';
+var saveImageDataToLibrary  = 'saveImageDataToLibrary';
+var saveImageFromUrl  = 'saveImageFromUrl';
 
 // Exports
 // -------
@@ -24,18 +25,31 @@ var ACTION  = 'saveImageDataToLibrary';
  * @param  {function} [fail]
  * @return {undefined}
  */
-module.exports = function(data, prefix, success, fail) {
-  // Handle method call with 3 or 4 parameters (prefix optional)
-  if (arguments.length < 4) {
-    prefix  = '';
-    success = arguments[1];
-    fail    = arguments[2];
-  }
 
-  // Prepare base64 string
-  data = data.replace(/data:image\/png;base64,/, '');
+module.exports = {
+    saveImageDataToLibrary: function(data, prefix, success, fail) {
+               // Handle method call with 3 or 4 parameters (prefix optional)
+        if (arguments.length < 4) {
+            prefix  = '';
+            success = arguments[1];
+            fail    = arguments[2];
+        }
 
-  return cordova.exec(ok(success), error(fail), SERVICE, ACTION, [data, prefix]);
+        // Prepare base64 string
+        data = data.replace(/data:image\/(pn|jpe)g;base64,/, '');
+
+        return cordova.exec(ok(success), error(fail), SERVICE, saveImageDataToLibrary, [data, prefix]);
+    },
+    saveImageFromUrl:   function(url, prefix, success, fail) {
+        // Handle method call with 3 or 4 parameters (prefix optional)
+        if (arguments.length < 4) {
+            prefix  = '';
+            success = arguments[1];
+            fail    = arguments[2];
+        }
+               
+        return cordova.exec(ok(success), error(fail), SERVICE, saveImageFromUrl, [url, prefix]);
+    }
 };
 
 // Private methods
@@ -69,3 +83,5 @@ function error(fail) {
 
   return fail;
 }
+
+
